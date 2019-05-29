@@ -1,0 +1,324 @@
+#include<iostream>
+#include<stack>
+#include<queue>
+using namespace std;
+
+struct node { 
+	int data;
+	node * left;
+	node * right;
+};
+node *create_node(int data) { 
+	node *n;
+	n=new node;
+	n->data=data;
+	n->right=NULL;
+	n->left=NULL;
+	return n;
+}
+node *add_node(node *root,node *n) { 
+	if(root ==NULL) { 
+		root=n;
+		return root;
+	}
+	if(n->data < root->data){ 
+		root->left=add_node(root->left,n);
+		return root;
+	}
+	else {
+		root->right=add_node(root->right,n);
+		return root;
+	}
+}
+void print_in_order ( node *root ) { 
+
+	if(root ==NULL ) return;
+	print_in_order(root->left);
+	cout<<root->data<<"\t";
+	print_in_order(root->right);
+}
+void print_pre_order ( node *root ) { 
+
+	if(root ==NULL ) return;
+	cout<<root->data<<"\t";
+	print_pre_order(root->left);
+	print_pre_order(root->right);
+}
+void print_post_order ( node *root ) { 
+
+	if(root ==NULL ) return ;
+	print_post_order(root->left);
+	print_post_order(root->right);
+	cout<<root->data<<"\t";
+}
+bool search (node *root,int n) { 
+	if(root==NULL ) return false;
+	if(root->data == n ) return true;
+
+	if(root->left!=NULL && n<root->data) {
+		return search(root->left,n);
+	}
+	else if (root->right!=NULL && n > root->data ) { 
+		return search(root->right,n);
+	}
+	return false;
+}
+bool is_BST(node *root) { 
+	if(root==NULL) return true;
+	if(root->left !=NULL && root->data < root->left->data )
+		return false;
+	if(root->right !=NULL && root->data > root->right->data ) 
+		return false;
+	return is_BST(root->left) && is_BST(root->right);
+}
+bool isFullTree(node *root) { 
+	if (root==NULL) return true;
+	if((root->right!=NULL && root->left==NULL)||(root->right==NULL && root->left!=NULL))
+		return false;
+
+	return isFullTree(root->left) && isFullTree(root->right);
+}
+void print_PreOrder(node *root) { 
+	stack<node*> st;
+	st.push(root);
+	node *x;
+	while(!st.empty()) { 
+		x=st.top();
+		cout<<x->data<<"  ";
+		st.pop();
+
+		if(x->right!=NULL) st.push(x->right);
+		if(x->left!=NULL) st.push(x->left);
+	}
+}
+void print_levelByLevel(node *root) { 
+	queue<node*> Q;
+	Q.push(root);
+	node *x;
+	while(!Q.empty()) { 
+		x=Q.front();
+		cout<<x->data<<"  ";
+		Q.pop();
+
+		if(x->left!=NULL) Q.push(x->left);
+		if(x->right!=NULL) Q.push(x->right);
+	}
+}
+int count_nodes(node *root) {
+	//"static" is used to prevent any change on the current count every recursive calling.
+	static int count=0; 
+	if(root==NULL ) return 0;
+	count++;
+	if(root->right!=NULL) count_nodes(root->right);
+	if(root->left !=NULL) count_nodes(root->left);
+	return count;
+}
+/* OR
+int count_nodes(node *root) {
+if (root==NULL) return 0;
+else return count_nodes(root->left)+count_nodes(root->right)+1;
+}
+*/
+int Max(int a,int b) {
+	if(a>b) return a;
+	return b;
+}
+int getHeight(node *root) { 
+	if(root==NULL) return 0;
+
+	else return 1+Max(getHeight(root->left),getHeight(root->right));
+}
+/* OR
+int getHeight(node *root) { 
+if(root==NULL) return 0;
+int R=0,L=0;
+if(root->left!=NULL )	L=getHeight(root->left);
+if(root->right !=NULL)	R=getHeight(root->right);
+
+if(L>R) return L+1;
+else return R+1;
+}*/
+void goLeft(node *n){ 
+	if(n->left!=NULL ) 
+		goLeft(n->left);
+	cout<<n->data<<"\t";
+}
+void goRight(node *n) { 
+	cout<<n->data<<"\t";
+	if(n->right!=NULL)
+		goRight(n->right);
+}
+void print_topView(node *root) { 
+	if(root==NULL ) return;
+	if(root->left!=NULL) goLeft(root->left);
+	cout<<root->data<<"\t";
+	if(root->right!=NULL ) goRight(root->right);
+}
+int LCA(node *root,int v1,int v2) { 
+	if(search(root,v1) && search(root,v2)){
+
+		if(root->data<v1 && root->data < v2 )
+			return LCA(root->right,v1,v2);
+
+		if(root->data > v1 && root->data > v2)
+			return LCA(root->left,v1,v2);
+
+		return root->data;
+	}
+	cout<<"Not Found";
+	return -1;
+}
+void remove(node *&sub_root) { 
+	node *to_delete;
+	node* parent;
+	if(sub_root==NULL) return;
+	to_delete=sub_root;
+
+	if(sub_root ->right ==NULL)
+		sub_root=sub_root->left;
+
+	else if(sub_root ->left ==NULL)
+		sub_root=sub_root->right;
+
+	else { 
+		to_delete = sub_root->left;
+		parent=sub_root;
+		while(to_delete->right!=NULL) {
+			parent=to_delete;
+			to_delete=to_delete->right;
+		}
+		sub_root->data=to_delete->data;
+
+		if(parent==sub_root) 
+			sub_root->left=to_delete->left;
+		else
+			parent->right=to_delete->left;
+	}
+	delete to_delete;
+	return;
+}
+bool delete_node(node* &root, int data) {
+	bool result =false;
+	if(root ==NULL) return false;
+	if(root->data==data) {
+		remove(root); 
+		result =true; 
+	}
+	if(root->left !=NULL) {
+		if(root->left->data==data){
+			remove(root->left);
+			result =true;
+		}
+	}
+	if(root->right !=NULL) {
+		if(root->right->data==data) {
+			remove(root->right);
+			result=true;
+		}
+	}
+	if(!result)
+		result=delete_node(root->left,data);
+	if(!result) 
+		result=delete_node(root->right,data);
+	return result;
+}
+int GreatestValue(node *root) { // In a binary tree.
+	int max1,max2;
+	if(root==NULL) return 0;
+	max1=max2=root->data;
+
+	if(root->right!=NULL ) max1=GreatestValue(root->right);
+	if(root->left !=NULL) max2=GreatestValue(root->left);
+
+	if(max1>max2) return max1;
+	else return max2;
+}
+void sum_LeavesData(node *root,int &sum) {
+	if(root==NULL ) return;
+	if(root->left==NULL && root->right==NULL) sum+=root->data;
+	sum_LeavesData(root->left,sum);
+	sum_LeavesData(root->right,sum);
+}
+//Assuming the initial level of the 1st node equals 1
+int getNode_level(node *root,int value,int level){ 
+	if(root==NULL) return 0;
+	if(root->data==value) return level;
+
+	if(value < root->data )
+		return getNode_level(root->left,value,level+1);
+
+	else
+		return getNode_level(root->right,value,level+1);
+}
+void reflect(node *root) { 
+	if(root==NULL) return;
+	node *p;
+	p=root->left;
+	root->left=root->right;
+	root->right=p;
+
+	reflect(root->left);
+	reflect(root->right);
+}
+int sumTree(node *root){
+	if(root==NULL) return 0;
+	int sum=root->data;
+
+	sum+=sumTree(root->left);
+	sum+=sumTree(root->right);
+	return sum;
+}
+int Check_AVL(node *root) { 
+	if(root==NULL) return 1;
+
+	if(abs(getHeight(root->left) - getHeight(root->right))>1)
+		return false;
+	else return true;
+}
+int sumOfNodesData(node *root){
+	if(root==NULL) 
+		return 0;
+	return sumOfNodesData(root->left)+ sumOfNodesData(root->right) + root->data;	
+}
+bool isSum(node *root){
+	if(root==NULL || root->left==NULL && root->right == NULL) 
+		return true;
+	int leftSum=sumOfNodesData(root->left);
+	int rightSum=sumOfNodesData(root->right);
+
+	if(root->data == (leftSum+rightSum) && isSum(root->left) && isSum(root->right))
+		return true;
+	return false;
+}
+void duplicate(node *root){
+	if(root==NULL) return;
+	node *n,*p;
+
+	duplicate(root->left);
+	duplicate(root->right);
+	p=root->left;
+	n=create_node(root->data);
+	root->left=n;
+	n->left=p;
+}
+int main () { 
+	int x;
+	node *n1,*n2,*n3,*n4,*n5;
+	node *root=NULL;
+
+	root=create_node(26);
+	n1=create_node(10);
+	n2=create_node(4);
+	n3=create_node(6);
+	n4=create_node(3);
+	n5=create_node(3);
+
+	root->right=n4;
+	root->left=n1;
+	n1->left=n2;
+	n1->right=n3;
+	n4->right=n5;
+
+	cout<< isSum(root)<<endl;
+
+}

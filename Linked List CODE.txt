@@ -1,0 +1,378 @@
+#include<iostream>
+#include<string>
+#include<cstdlib>
+#include<fstream>
+using namespace std;
+
+struct node { 
+	int data;
+	node *next;
+};
+node *create_node(int data) { 
+	node *n;
+	n=new node;
+	n->data=data;
+	n->next=NULL;
+	return n;
+}
+node *add_node_by_node(node *head,node *n) { 
+	node *p1,*p2;
+	if(head==NULL) { 
+		head=n;
+		return head;
+	}
+	p1=p2=head;
+	while(p2!=NULL) { 
+		p1=p2;
+		p2=p2->next;
+	}
+		p1->next =n;
+		return head;
+	}
+node *sort_list(node *head) { 
+	if(head==NULL ) return head;
+	node *head3=NULL,*p1;
+	
+	p1=head;
+	head=head->next;
+	head3=p1;
+	head3->next=NULL;
+	while(head!=NULL) { 
+		if(head->data <= head3->data ) {
+			p1=head;
+			head=head->next;
+			p1->next=head3;
+			head3=p1;
+		}
+		else { 
+			p1=head;
+			head=head->next;
+			node *p2,*p3;
+			p2=p3=head3;
+			while(p3->next!=NULL) { 
+				if((p1->data >= p3->data) && (p1->data <= p3->next->data )  ) {
+					p1->next=p3->next;
+					p3->next=p1;
+					break;
+				}
+				else {
+				p2=p3;
+				p3=p3->next;
+				}
+			}
+			if(p3->next==NULL) {
+			p1->next=NULL;
+			p3->next=p1;
+			}
+		}
+	}
+	return head3;
+}
+// reading from a file and adding to the list
+node *readAndAdd(node *head,char *filename) {  
+	node *n,*p;
+	int x;
+	ifstream read(filename,ios::in);
+	if(!read.is_open()) {cout<<"Error Opening a file!"<<endl; }
+	else {
+	for(;!read.eof();) {
+		read>> x;
+		n=create_node(x);
+		if(head==NULL){
+			head=n;
+			p=n;
+		}
+		else{
+			p=head;
+			while(p->next!=NULL) p=p->next;
+			p->next=n;
+			p=n;
+		}
+	}
+	}
+		return head;
+}
+bool isSorted(node *head) { 
+	if(head==NULL || head->next == NULL ) return true; 
+	if(head->data < head->next->data ) { 
+		return isSorted(head->next);
+	}
+	else return false;
+}
+node *delete_even_IDs(node *head) { 
+	if(head==NULL ) return head;
+	node *p1,*p2;
+	while(head !=NULL && head->data % 2 ==0 ) { 
+		p1=head;
+		head=head->next;
+		delete p1;
+	}
+	p1=p2=head;
+	while(p2!=NULL) { 
+		if(p2->data % 2== 0) { 
+		p1->next=p2->next;
+		delete p2;
+		p2=p1->next; }
+		else { 
+			p1=p2;
+			p2=p2->next;
+		}
+	}
+	return head;
+}
+// make a copy of the list
+node *clone_list(node *head ) {    
+	node *p1,*p2,*n,*head2;
+	p1=head;
+	p2=NULL;
+	while(p1!=NULL) { 
+		n=create_node(p1->data);
+		if(p2==NULL) { 
+			head2=n;
+			p2=n;
+			p1=p1->next;
+		}
+		else { 
+			p2->next=n;
+			p2=n;
+			p1=p1->next;
+		}
+	}
+	return head2;
+}
+node *remove_duplicates(node *head) { 
+	if(head==NULL)return head;
+	node *p1,*p2;
+	p1=head;
+	while(p1->next!=NULL) { 
+		if(p1->data ==p1->next->data) {
+			p2=p1->next->next;
+			delete p1->next;
+			p1->next=p2;
+		}
+		else { 
+			p1=p1->next;
+		}
+	}	
+	return head;
+}
+void display_odd_position (node *head ) { 
+	if(head==NULL)return ; 
+	node *p;
+	p=head;
+	while(p!=NULL) { 
+		cout<<p->data<<"   ";
+		p=p->next;
+		if(p!=NULL) p=p->next;
+		else break;
+	}
+}
+node *delete_odd_position(node *head) { 
+	if(head ==NULL) return head;
+	if(head->next==NULL) { delete head; }
+
+	node *p1,*p2;
+	p1=head; p2=head->next;
+	head=head->next;
+	delete p1;
+	p1=head;
+	p2=p1->next;
+	while(p2!=NULL) { 
+		p1->next=p2->next;
+		delete p2;
+		p1=p1->next;
+		if(p1!=NULL) p2=p1->next;
+		else break;
+	}
+	return head;
+}
+node *delete_even_position(node *head) { 
+	if(head==NULL) return head;
+	node *p1,*p2;
+	p1=head; p2=head->next;
+	while(p2!=NULL ) { 
+		p1->next=p2->next;
+		delete p2;
+		p1=p1->next;
+		if(p1!=NULL) p2=p1->next;
+		else break;		
+	}
+	return head;
+}
+node *reverse_list(node *head) { 
+	node *head2=NULL,*p;
+	while(head!=NULL) { 
+		p=head;
+		head=head->next;
+		p->next=head2;
+		head2=p;
+	}
+	return head2;
+}
+int count_nodes(node *head ) { 
+	if(head==NULL) return 0;
+	int count=0;
+	count=1+count_nodes(head->next);
+	return count;
+}
+node *interchange_firstnode_with_lastone(node *head) { 
+		node * p1,*p2,*p3=head;
+		p1=p2=head;
+		if(head==NULL || head->next==NULL) return head;
+		
+		while(p2->next!=NULL){
+		p1=p2;
+		p2=p2->next;
+		}
+		p1->next=NULL;
+		p2->next=head;
+		head=p2;
+		p1=head; p2=head->next;
+		head->next=p2->next;
+		p1=p2=head;
+		while(p2->next!=NULL){
+		p1=p2;
+		p2=p2->next;
+		}
+		p3->next=NULL;
+		p2->next=p3;
+		return head;
+}
+void print_list(node *head) { 
+	node *p;
+	p=head;
+	if(head==NULL) { cout<<"Empty List.\n"; return ; }
+
+		while(p!=NULL) { 
+			cout<<p->data<<"   ";
+			p=p->next;
+		}
+		cout<<endl;
+}
+node *Remove_list(node *head) { 
+	if(head==NULL) return head;
+	node *p;
+	while(head!=NULL) { 
+		p=head;
+		head=head->next;
+		delete p;
+	}
+	return head;
+}
+void print_menu() { 
+	cout<<"1. Enter the ID."<<endl;
+	cout<<"2. Sort the list in ascending order."<<endl;
+	cout<<"3. Remove Duplicates in a sorted list."<<endl;
+	cout<<"4. Delete Even IDs."<<endl;
+	cout<<"5. Display Odd Positions."<<endl;
+	cout<<"6. Delete Odd Positions."<<endl;
+	cout<<"7. Delete Even Positions."<<endl;
+	cout<<"8. Reverse the list."<<endl;
+	cout<<"9. Interchange the first node with the last one."<<endl;
+	cout<<"10.Display the number of nodes."<<endl;
+	cout<<"11.Read from a file and insert to the list."<<endl;
+	cout<<"12.Check whether the list is sorted."<<endl;
+	cout<<"13.Clone the list."<<endl;
+	cout<<"14.Print the list."<<endl;
+	cout<<"15.Exit."<<endl;
+}
+int main () { 
+	node *head,*n,*head_clone=NULL;
+	head =NULL;
+	int x,op;
+	bool sort=false;
+	char *fp=new char[64];
+	print_menu();
+	cout<<endl;
+	while(1) { 
+		cout<<"Enter # of Operation: ";
+		cin>>op;
+		switch (op) { 
+		case 1:
+			cout<<"Enter the ID: ";
+			cin>>x;
+			n=create_node(x);
+			head=add_node_by_node(head,n);
+			break;
+
+		case 2:
+			head=sort_list(head);
+			cout<<"The list has been sorted in ascending order."<<endl;
+			break;
+
+		case 3:
+			cout<<"The list after removing duplicates:"<<endl;
+			head=sort_list(head);
+			head=remove_duplicates(head);
+			print_list(head);
+			break;
+
+		case 4:
+			cout<<"the list after removing even IDs:"<<endl;
+			head=delete_even_IDs(head);
+			print_list(head);
+			break;
+
+		case 5:
+			cout<<"The list with only odd positions:"<<endl;
+			display_odd_position(head);
+			break;
+
+		case 6:
+			cout<<"The list after deleting odd position:"<<endl;
+			head=delete_odd_position(head);
+			print_list(head);
+			break;
+
+		case 7:
+			cout<<"The list after deleting even position:"<<endl;
+			head=delete_even_position(head);
+			print_list(head);
+			break;
+			
+		case 8:
+			cout<<"The list in reverse order:"<<endl;
+			head=reverse_list(head);
+			print_list(head);
+			break;
+
+		case 9:
+			cout<<"Interchange the first node with the last one: "<<endl;
+			head=interchange_firstnode_with_lastone(head);
+			print_list(head);
+			break;
+
+		case 10:
+			cout<<"the number of nodes in the list is: ";
+			cout<<count_nodes(head);
+			break;
+
+		case 11:
+			cout<<"Enter the file name you want to read from: ";
+			cin>>fp;
+			head=readAndAdd(head,fp);
+			break;
+
+		case 12:
+			sort=isSorted(head);
+			if(sort==true) cout << "The list is sorted."<<endl;
+			else cout<<"The list is not sorted."<<endl;
+			break;
+
+		case 13:
+			head_clone=clone_list(head);
+			cout<<"The cloned list is: ";
+			print_list(head_clone);
+			break;
+
+		case 14:
+			cout<<"The list is: ";
+			print_list(head);
+			break;
+
+		case 15:
+			head=Remove_list(head);
+			exit(0);
+		}
+	}
+}
